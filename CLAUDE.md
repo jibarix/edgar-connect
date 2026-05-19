@@ -46,6 +46,7 @@ See @README.md for the product overview and @pyproject.toml for package metadata
 - Keep cross-statement concepts aligned when they are intentionally shared, especially D&A and impairment handling between the cash-flow prefilter and the EBIT / EBITDA metric logic.
 - Avoid moving business logic into the MCP layer when it belongs in the reusable engine.
 - If a change affects parser output, check whether it also affects derived metrics, the CLI, and MCP responses.
+- Keep `CHANGELOG.md` in sync with substantive commits. The file follows Keep-a-Changelog with an `[Unreleased]` section between version tags; new entries go there under `Added` / `Changed` / `Fixed` / `Removed` / `Validation`. Update it in the same commit as the change whenever practical. Substantive = anything that touches behavior, public API, CI, dependencies, supply-chain pins, build/install, or developer-facing tooling (new scripts, new maintenance flows). README- or comment-only edits are not logged (the 0.1.0 / 0.1.1 entries set that precedent). When a release is cut, the `[Unreleased]` entries get promoted under the new version heading.
 
 ## Validation
 

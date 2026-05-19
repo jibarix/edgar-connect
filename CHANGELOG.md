@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`sec_tag_mapping.json` update system (`scripts/update_sec_tag_mapping.py`).**
+  Maintenance tool for the Layer-1 backing data. Pulls a new SEC Financial
+  Statement Data Set quarter, derives a candidate mapping, and additively
+  merges only new us-gaap tags into the existing file; existing
+  classifications are preserved. Forward-only integrity is enforced by a
+  new manifest at `data/sec_tag_mapping.source.json` (sha256 of the
+  mapping file, last applied FSDS quarter + zip sha256, applied-update
+  history); `check` and `update` refuse to operate on a hand-edited
+  mapping (rc=2). The closed 9-pair `(statement, category)` vocabulary is
+  pinned in the manifest and enforced by a schema check. New tags are
+  auto-classified only when per-statement regex rules fire confidently
+  (high precision, low recall, mirroring the BS/CF prefilters in
+  `edgar.metrics`); ambiguous tags land in a `needs_review` report for
+  hand-adjudication. Non-vocab statement codes (PR/UN/SI/CP/EQ/CI) and
+  non-us-gaap concepts (dei, srt) are filtered out. Subcommands: `init`,
+  `check`, `update QUARTER [--source-zip PATH] [--apply] [--report PATH]`
+  (dry-run by default). Live download path requires `EDGAR_IDENTITY`;
+  `--source-zip` allows offline / CI runs. stdlib-only — no new
+  dependencies. README and MAPPING.md updated with the new flow.
+
+### Fixed
+
+- **CI: editable install under `--no-build-isolation` now works.** Added
+  `wheel==0.46.3` (PyPI verified 2026-01-22, pre-incident) to the
+  audited dev tooling step in `.github/workflows/ci.yml`. Without it,
+  `--no-build-isolation` did not provision the wheel build backend
+  (setup-python ships setuptools but not wheel), so the editable install
+  step failed with `invalid command 'bdist_wheel'`.
+
+### Removed
+
+- **Dead imports and unused internal helpers.** Trimmed orphan imports
+  in `edgar/company_classifier.py`, `utils/cache.py`, `edgar/xbrl_parser.py`,
+  `edgar/metrics/returns.py`, `edgar/metrics/_slot_selection.py`, and
+  dropped eight unused validators / two unused helpers from
+  `utils/validators.py` and `utils/helpers.py`. No public API change; no
+  behavior change. Verified by static analysis (no callers in the engine,
+  CLI, MCP server, or tests) and the existing offline CI suite.
+
 ## [0.1.1] - 2026-05-19
 
 ### Added
