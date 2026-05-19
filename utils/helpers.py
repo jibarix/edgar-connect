@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import time
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import httpx
 
@@ -45,59 +45,6 @@ def retry_request(request_func, *args, max_retries: int = 3, retry_delay: int = 
     raise httpx.HTTPError("All request attempts failed")
 
 
-def get_filing_dates(period_type, num_periods):
-    """
-    Generate filing date ranges based on period type and number of periods.
-    This function has been updated to generate a wider range of dates in the past 
-    to ensure we can find the company's actual fiscal periods.
-    
-    Args:
-        period_type (str): 'annual' or 'quarterly'
-        num_periods (int): Number of periods to cover
-        
-    Returns:
-        list: List of date ranges as (start_date, end_date) tuples
-    """
-    today = datetime.now()
-    date_ranges = []
-    
-    # We'll generate more periods than requested to ensure we can find 
-    # the company's actual fiscal year patterns
-    search_periods = max(num_periods * 2, 10)
-    
-    if period_type.lower() == 'annual':
-        # For annual reports, we need to cast a wider net to find fiscal years
-        # which may not align with calendar years
-        for i in range(search_periods):
-            # Get a range that starts 15 months before the end of the target year
-            # and ends at the end of the target year
-            end_year = today.year - i
-            end_date = datetime(end_year, 12, 31)
-            start_date = datetime(end_year - 1, 9, 1)
-            
-            date_ranges.append((start_date, end_date))
-    
-    elif period_type.lower() == 'quarterly':
-        # For quarterly reports, create overlapping 4-month windows
-        for i in range(search_periods):
-            # Create a 4-month window, sliding back 3 months at a time
-            end_date = today - timedelta(days=i * 90)
-            start_date = end_date - timedelta(days=120)
-            
-            date_ranges.append((start_date, end_date))
-    
-    else:  # Year-to-date or other
-        # For YTD, create a series of annual windows
-        for i in range(search_periods):
-            end_date = today - timedelta(days=i * 365)
-            start_date = end_date - timedelta(days=365)
-            
-            date_ranges.append((start_date, end_date))
-    
-    logger.info(f"Generated {len(date_ranges)} date ranges for {num_periods} requested {period_type} periods")
-    return date_ranges
-
-
 def format_financial_number(number, decimals=0, use_commas=True, use_scaling=False):
     """
     Format a financial number with appropriate formatting.
@@ -130,28 +77,6 @@ def format_financial_number(number, decimals=0, use_commas=True, use_scaling=Fal
         return f"{number:,.{decimals}f}"
     else:
         return f"{number:.{decimals}f}"
-
-
-def get_fiscal_period_focus(filing_date):
-    """
-    Determine the likely fiscal period focus based on a filing date.
-    
-    Args:
-        filing_date (datetime): The filing date
-        
-    Returns:
-        str: Fiscal period focus (e.g., 'Q1', 'Q2', 'Q3', 'FY')
-    """
-    month = filing_date.month
-    
-    if 1 <= month <= 3:
-        return "Q1"
-    elif 4 <= month <= 6:
-        return "Q2"
-    elif 7 <= month <= 9:
-        return "Q3"
-    else:  # 10 <= month <= 12
-        return "FY"
 
 
 def parse_date(date_str):

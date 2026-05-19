@@ -14,7 +14,7 @@ from edgar.metrics.registry import (
     safe_add,
     safe_div,
 )
-from edgar.metrics.derived_lines import ebit, invested_capital, total_debt
+from edgar.metrics.derived_lines import ebit, total_debt
 
 
 def _avg_series(s: NormalizedStatement, concept: str) -> dict[str, float | None]:

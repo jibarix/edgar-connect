@@ -11,9 +11,7 @@ import csv
 import json
 import logging
 import os
-import zipfile
 from collections import defaultdict
-from pathlib import Path
 
 from config.settings import BASE_DIR
 from config.sic_codes import sic_to_subindustry

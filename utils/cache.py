@@ -3,10 +3,8 @@ Cache utility for storing frequently accessed data.
 """
 
 import os
-import json
 import time
 import pickle
-from pathlib import Path
 
 from config.settings import CACHE_DIR, CACHE_ENABLED, CACHE_EXPIRY
 

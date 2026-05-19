@@ -44,8 +44,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from edgar.metrics._statement_taxonomy import BS_SLOTS_BY_ID, CF_SLOTS_BY_ID
-
 # ── slot-shape partition ─────────────────────────────────────────────
 # Catch-all "other …" slots legitimately aggregate several distinct
 # reported line items; common_stock_apic = par + APIC (+ preferred par)

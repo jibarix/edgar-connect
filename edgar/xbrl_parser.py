@@ -5,12 +5,11 @@ deterministic TagClassifier (builtin overrides + sec_tag_mapping.json).
 """
 from __future__ import annotations
 
-import copy
 import re
 import logging
 from collections import Counter, defaultdict
 
-from edgar._extension_mappings import ExtensionRule, apply_rules
+from edgar._extension_mappings import apply_rules
 from edgar.tag_classifier import TagClassifier
 from edgar.xbrl_instance import parse_instance
 from utils.cache import Cache
