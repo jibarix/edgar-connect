@@ -1,6 +1,6 @@
 # edgar-connect
 
-Analyst-grade SEC EDGAR financials. A Python library, CLI, web app, and MCP
+Analyst-grade SEC EDGAR financials. A Python library, CLI, and MCP
 server that pulls XBRL filings directly from the SEC and layers an
 analyst-normalized metric engine on top.
 
@@ -28,7 +28,7 @@ subscription; the live data source is the SEC.
 - Normalizes issuer-specific XBRL tags into reusable statement data
 - Computes analyst-normalized derived metrics on top of that normalized data
 - Builds structural balance-sheet and cash-flow statements from a frozen slot taxonomy
-- Exposes the engine through a local CLI, a small Flask UI, and an MCP server
+- Exposes the engine through a local CLI and an MCP server
 
 ## SEC API usage
 
@@ -106,17 +106,6 @@ Supported statement types:
 - `EQ` - Equity Statement
 - `CI` - Comprehensive Income
 - `ALL` - All supported statements
-
-### Web app
-
-Run:
-
-```bash
-python web_app.py
-```
-
-The Flask UI is mainly for browsing and lightweight interaction over the same
-engine components used by the CLI.
 
 ## MCP server
 
@@ -196,7 +185,7 @@ Main metric modules:
 |--------|----------|
 | `derived_lines.py` | revenue, gross_profit, ebit, ebitda, fcf, total_debt |
 | `margins.py` | ebit_margin, ebitda_margin, ni_margin, fcf_margin |
-| `ratios.py` | debt_to_capital, debt_to_ebitda, current_ratio, quick_ratio |
+| `ratios.py` | debt_to_capital, debt_to_equity, current_ratio, quick_ratio |
 | `returns.py` | roa, roe, roic, asset_turnover |
 | `working_capital.py` | dso, dio, dpo, cash_conversion_cycle |
 | `growth.py` | `<base>_growth`, `<base>_cagr_{3,5,7}y` |
@@ -275,7 +264,6 @@ python scripts/gen_lockfile.py report.json requirements.lock
 ```text
 edgar-connect/
 |-- main.py
-|-- web_app.py
 |-- pyproject.toml
 |-- requirements.lock
 |-- README.md

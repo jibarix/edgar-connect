@@ -16,7 +16,7 @@ See @README.md for the product overview and @pyproject.toml for package metadata
 - `edgar/metrics/_statement_taxonomy.py`: frozen closed-set Balance Sheet / Cash Flow slot taxonomy for structural classification.
 - `edgar/metrics/_bs_prefilter.py` and `edgar/metrics/_cf_prefilter.py`: deterministic prefilters that classify confident BS/CF tags, preserve reported subtotals only for provenance, and leave ambiguous tags for downstream fan-out.
 - `edgar_mcp/server.py`: MCP tool surface over lookup, normalized statements, concepts, and derived metrics.
-- `main.py` and `web_app.py`: interfaces over the engine, not the core product.
+- `main.py`: a CLI interface over the engine, not the core product.
 
 ## Project Invariants
 
@@ -45,7 +45,7 @@ See @README.md for the product overview and @pyproject.toml for package metadata
 - When working in the BS/CF taxonomy layer, preserve the deterministic prefilter philosophy: low-recall / high-precision auto-classification, subtotal-aware handling, and polarity contradiction guardrails.
 - Keep cross-statement concepts aligned when they are intentionally shared, especially D&A and impairment handling between the cash-flow prefilter and the EBIT / EBITDA metric logic.
 - Avoid moving business logic into the MCP layer when it belongs in the reusable engine.
-- If a change affects parser output, check whether it also affects derived metrics, the CLI, the web app, and MCP responses.
+- If a change affects parser output, check whether it also affects derived metrics, the CLI, and MCP responses.
 
 ## Validation
 

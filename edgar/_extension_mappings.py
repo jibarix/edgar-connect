@@ -103,6 +103,34 @@ DEALER_RULES: list[ExtensionRule] = [
 ]
 
 
+# ── Captive-finance equipment/vehicle OEMs ──────────────────────────
+# Manufacturers with a consolidated captive lender (Deere SIC 3523,
+# CNH, etc.). Post-FY2022 Deere stopped tagging the face long-term
+# debt total under any us-gaap concept and moved it to the company
+# extension `de:LongTermDebtAndFinanceLeasesNoncurrent` — which the
+# Company Facts API strips, leaving the flat feed with only a stale
+# `us-gaap:LongTermDebtNoncurrent` frozen at FY2022. Re-inject the
+# extension under the canonical noncurrent-debt concept so the standard
+# long_term_debt_noncurrent chain resolves it.
+#
+# Scope is deliberately narrow:
+#   * The CURRENT maturities are tagged plain `us-gaap:DebtCurrent`
+#     (a standard concept present in the flat feed) — handled by the
+#     long_term_debt_current concept chain, NOT here.
+#   * `us-gaap:SecuredDebt` (securitization borrowings) is a SUBSET
+#     already inside the consolidated noncurrent total; capturing it
+#     would double-count, so it is intentionally NOT matched.
+
+EQUIPMENT_FINANCE_RULES: list[ExtensionRule] = [
+    ExtensionRule(
+        pattern=re.compile(r"^LongTermDebtAndFinanceLeasesNoncurrent$"),
+        category="Liabilities",
+        canonical="LongTermDebtNoncurrent",
+        period_type="instant",
+    ),
+]
+
+
 def apply_rules(
     facts: list[dict],
     rules: list[ExtensionRule],

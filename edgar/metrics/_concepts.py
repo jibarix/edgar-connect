@@ -181,6 +181,13 @@ CONCEPT_CHAINS: dict[str, list[tuple[str, str]]] = {
     "long_term_debt_current": [
         ("Liabilities", "LongTermDebtAndCapitalLeaseObligationsCurrent"),
         ("Liabilities", "LongTermDebtCurrent"),
+        # Captive-finance OEMs (Deere, etc.) bundle the current maturities
+        # of equipment + financial-services borrowings into the single
+        # us-gaap `DebtCurrent` line and tag no LongTermDebt*Current at
+        # all. Lowest priority: a per-period first-non-None fallback that
+        # only fires when neither split tag resolves, so issuers that DO
+        # tag LongTermDebtCurrent are unaffected (no double-count).
+        ("Liabilities", "DebtCurrent"),
     ],
     "long_term_debt_noncurrent": [
         ("Liabilities", "LongTermDebtAndCapitalLeaseObligations"),

@@ -20,9 +20,9 @@ dependencies = [
     "beautifulsoup4==4.14.3",# 2025-11-30
     "lxml==6.1.0",           # 2026-04-17
     "jsonschema==4.26.0",    # 2024-12-19
-    "flask==3.1.3",          # 2026-02-19
     # --- explicit transitive pins (override pip auto-resolution) ---
     "idna==3.11",            # 2025-10-12  (httpx transitive; 3.14/3.15 fell inside disclosure window)
+    "numpy==2.4.4",          # 2026-03-29  (pandas transitive; 2.4.6 dropped 2026-05-18, in-window)
 ]
 
 [project.optional-dependencies]
@@ -34,6 +34,8 @@ mcp = [
     # --- explicit transitive pins (pip auto-resolution picked in-window versions) ---
     "sse-starlette==3.4.2",       # 2026-05-06  (3.4.4 was uploaded on incident day 2026-05-12)
     "python-multipart==0.0.27",   # 2026-04-27  (0.0.28 dropped 1 day pre-disclosure)
+    "uvicorn==0.46.0",            # 2026-04-23  (mcp transitive; 0.47.0 dropped 2026-05-14, in-window)
+    "click==8.3.3",               # 2026-04-22  (uvicorn transitive; 8.4.0 dropped 2026-05-17, in-window)
 ]
 
 [project.scripts]
@@ -41,7 +43,7 @@ edgar-search = "main:main"
 edgar-mcp = "edgar_mcp.__main__:mcp.run"
 
 [tool.setuptools]
-py-modules = ["main", "web_app"]
+py-modules = ["main"]
 
 [tool.setuptools.packages.find]
 include = ["edgar*", "edgar_mcp*", "config*", "utils*"]
