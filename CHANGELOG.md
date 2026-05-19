@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`company_index.json` update system (`scripts/update_company_index.py`).**
+  Snapshot rebuild of the local company classification index from one or
+  more SEC Financial Statement Data Set quarters. Forward-only integrity
+  via a new manifest at `data/company_index.source.json` (sha256 of the
+  index file, FSDS quarters used, per-quarter zip shas, build counts,
+  applied-rebuild history); `check` and `rebuild` refuse to operate on a
+  hand-edited index (rc=2). The classifier in
+  `edgar/company_classifier.py` is reused as-is via a temporary scratch
+  directory, so the index produced by this tool is byte-equal to one
+  built manually via `python -m edgar.company_classifier --build` on the
+  same inputs. Diff splits "changed" entries into `changed_period_only`
+  (expected, low signal — the latest annual moved forward) and
+  `changed_substantive` (any other field differs — worth surfacing).
+  Subcommands: `init`, `check`,
+  `rebuild QUARTER [QUARTER...] [--source-zip QUARTER=PATH ...] [--apply] [--report PATH]`
+  (dry-run by default). Live download path requires `EDGAR_IDENTITY`;
+  `--source-zip` allows offline / CI runs. stdlib-only.
+
 - **`sec_tag_mapping.json` update system (`scripts/update_sec_tag_mapping.py`).**
   Maintenance tool for the Layer-1 backing data. Pulls a new SEC Financial
   Statement Data Set quarter, derives a candidate mapping, and additively

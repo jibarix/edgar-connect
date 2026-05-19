@@ -316,6 +316,7 @@ maintenance:
 | `scripts/smoke_test_metrics.py` | Live AAPL smoke test for the parser + metric registry. Prints a compact multi-period table of hand-checked metrics. Requires `EDGAR_IDENTITY`. |
 | `scripts/gen_lockfile.py` | Regenerates `requirements.lock` from `pip --dry-run --report ...` output using exact versions and `sha256` hashes. |
 | `scripts/update_sec_tag_mapping.py` | Maintenance tool for `data/sec_tag_mapping.json`. Forward-only integrity check via a sha256 manifest, plus an additive merge of new us-gaap tags from a fresh SEC Financial Statement Data Set quarter. |
+| `scripts/update_company_index.py` | Maintenance tool for `data/company_index.json`. Forward-only integrity check via a sha256 manifest, plus a snapshot rebuild of the company classification index from one or more fresh SEC Financial Statement Data Set quarters. |
 
 Lockfile regeneration flow:
 
@@ -333,6 +334,16 @@ python scripts/update_sec_tag_mapping.py update 2026q1          # dry-run: diff 
 python scripts/update_sec_tag_mapping.py update 2026q1 --apply  # merge new tags; needs_review held back
 ```
 
+Company-index rebuild flow (after one or more new FSDS quarters are
+published):
+
+```bash
+python scripts/update_company_index.py init                                   # one-time, baselines the current file
+python scripts/update_company_index.py check                                  # verify nobody hand-edited the index
+python scripts/update_company_index.py rebuild 2025q4 2026q1                  # dry-run: snapshot diff
+python scripts/update_company_index.py rebuild 2025q4 2026q1 --apply          # replace the index, rotate the manifest
+```
+
 ## Project structure
 
 ```text
@@ -345,7 +356,8 @@ edgar-connect/
 |-- scripts/
 |   |-- smoke_test_metrics.py
 |   |-- gen_lockfile.py
-|   `-- update_sec_tag_mapping.py
+|   |-- update_sec_tag_mapping.py
+|   `-- update_company_index.py
 |-- edgar_mcp/
 |   |-- __main__.py
 |   `-- server.py
