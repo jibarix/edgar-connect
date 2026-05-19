@@ -38,6 +38,31 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def prompt_int(prompt, default):
+    """
+    Prompt for an integer, re-asking on invalid input instead of crashing.
+
+    An empty response yields ``default``. Non-numeric input is rejected
+    with a message and the prompt repeats, so a stray keystroke no longer
+    raises an uncaught ``ValueError`` and aborts the session.
+
+    Args:
+        prompt (str): Text shown to the user.
+        default (int): Value used when the response is empty.
+
+    Returns:
+        int: The parsed integer.
+    """
+    while True:
+        raw = input(prompt).strip()
+        if not raw:
+            return int(default)
+        try:
+            return int(raw)
+        except ValueError:
+            print(f"Please enter a whole number (got '{raw}').")
+
+
 def interactive_mode():
     """Run the tool in interactive mode with user prompts."""
     print("\n" + "=" * 60)
@@ -60,7 +85,7 @@ def interactive_mode():
         for i, match in enumerate(matches, 1):
             print(f"{i}. {match['name']} (Ticker: {match['ticker']}, CIK: {match['cik']})")
         
-        choice = int(input("\nSelect the correct company (or 0 to cancel): ") or "0")
+        choice = prompt_int("\nSelect the correct company (or 0 to cancel): ", 0)
         if choice == 0:
             return None
         if 1 <= choice <= len(matches):
@@ -105,7 +130,10 @@ def interactive_mode():
     
     # Step 4: Number of Periods
     default_periods = DEFAULT_ANNUAL_PERIODS if period_type == "annual" else DEFAULT_QUARTERLY_PERIODS
-    num_periods = int(input(f"\nNumber of periods to retrieve (default: {default_periods}): ") or default_periods)
+    num_periods = prompt_int(
+        f"\nNumber of periods to retrieve (default: {default_periods}): ",
+        default_periods
+    )
     
     # Step 5: Output Format
     print("\nSelect output format:")
@@ -268,9 +296,10 @@ def extract_financial_statements(params):
                 # Process all statement types if ALL is selected
                 for statement_type in ["BS", "IS", "CF"]:
                     filing_data = statement_extractor.extract_statement(
-                        params["ticker"], 
-                        filing["accession_number"], 
-                        statement_type
+                        params["ticker"],
+                        filing["accession_number"],
+                        statement_type,
+                        cik=params["cik"]
                     )
                     if filing_data is not None and not filing_data.empty:
                         if statement_type not in financial_data:
@@ -280,9 +309,10 @@ def extract_financial_statements(params):
             else:
                 # Process only the selected statement type
                 filing_data = statement_extractor.extract_statement(
-                    params["ticker"], 
-                    filing["accession_number"], 
-                    params["statement_type"]
+                    params["ticker"],
+                    filing["accession_number"],
+                    params["statement_type"],
+                    cik=params["cik"]
                 )
                 if filing_data is not None and not filing_data.empty:
                     financial_data[filing["filing_date"]] = filing_data
@@ -291,7 +321,9 @@ def extract_financial_statements(params):
         if financial_data:
             # If we successfully extracted data using the statement extractor,
             # convert it to the format expected by the data formatter
-            return format_statement_data(financial_data, params["statement_type"])
+            return format_statement_data(
+                financial_data, params["statement_type"], params["period_type"]
+            )
         
         print("Failed to extract financial statements from both XBRL data and filing documents.")
         return None
@@ -302,14 +334,15 @@ def extract_financial_statements(params):
         return None
 
 
-def format_statement_data(extracted_data, statement_type):
+def format_statement_data(extracted_data, statement_type, period_type="annual"):
     """
     Format the extracted statement data into the structure expected by the DataFormatter
-    
+
     Args:
         extracted_data (dict): Data extracted from filings
         statement_type (str): Type of financial statement
-        
+        period_type (str): Reporting period type ("annual" or "quarterly")
+
     Returns:
         dict: Formatted financial data
     """
@@ -348,10 +381,10 @@ def format_statement_data(extracted_data, statement_type):
             "periods": periods,
             "metrics": metrics,
             "metadata": {
-                "period_type": "annual" if statement_type == "annual" else "quarterly"
+                "period_type": period_type
             }
         }
-    
+
     # For "ALL", we have a nested structure
     else:
         # Collect all periods across all statement types
@@ -391,7 +424,7 @@ def format_statement_data(extracted_data, statement_type):
             "periods": periods,
             "metrics": metrics,
             "metadata": {
-                "period_type": "annual"  # Default to annual for combined statements
+                "period_type": period_type
             }
         }
 

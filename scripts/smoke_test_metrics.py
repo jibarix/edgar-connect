@@ -88,6 +88,14 @@ def main():
     filings = FilingRetrieval()
     parser = XBRLParser()
     facts = filings.get_company_facts(cik)
+    if not facts:
+        print(
+            "Company Facts fetch returned no data (network/SEC failure or "
+            "missing EDGAR_IDENTITY). This is a live smoke test and cannot "
+            "pass offline.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # Fetch enough periods to satisfy max lookback we need (3 for CAGR-3y)
     NUM_PERIODS = 4
@@ -100,19 +108,40 @@ def main():
     print(f"Periods loaded: {stmt.periods}")
     print()
 
+    if not stmt.periods:
+        print(
+            "No periods parsed from Company Facts. The smoke test reached "
+            "the SEC but produced no usable data; failing instead of "
+            "printing an all-None table.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     header_periods = stmt.periods[:NUM_PERIODS]
     print(f"{'slug':<28} | {'unit':<8} | " + " | ".join(f"{p:>16}" for p in header_periods))
     print("-" * (28 + 8 + 18 * len(header_periods) + 6))
 
+    any_value = False
     for slug in METRICS_TO_TEST:
         spec = edgar_metrics.REGISTRY.get(slug)
         if spec is None:
             print(f"{slug:<28} | <NOT REGISTERED>")
             continue
         series = spec.fn(stmt)
+        if any(series.get(p) is not None for p in header_periods):
+            any_value = True
         row = f"{slug:<28} | {spec.unit:<8} | "
         row += " | ".join(fmt(spec.unit, series.get(p)).rjust(16) for p in header_periods)
         print(row)
+
+    if not any_value:
+        print(
+            "\nEvery tested metric resolved to None across all visible "
+            "periods. Data was fetched but the metric registry produced "
+            "nothing usable; failing.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":

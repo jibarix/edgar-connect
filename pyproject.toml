@@ -27,7 +27,12 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.0",
+    # Pinned to releases uploaded BEFORE the Mini Shai-Hulud phase-1
+    # staging wave (2026-04-29), consistent with the runtime pin policy
+    # above. The incident ran in two waves: 2026-04-29 and 2026-05-11.
+    "pytest==8.4.2",         # 2025-09-04  (latest 8.x; ~8 months pre-incident margin)
+    # --- explicit transitive pins (override pip auto-resolution) ---
+    "packaging==25.0",       # 2025-04-19  (pytest transitive; 26.2 landed 2026-04-24, only 5 days before phase-1 staging)
 ]
 mcp = [
     "mcp==1.27.1",                # 2026-05-08  (last release before Mini Shai-Hulud disclosure)

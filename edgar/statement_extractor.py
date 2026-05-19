@@ -124,7 +124,27 @@ class StatementExtractor:
         except httpx.HTTPError as e:
             logger.error(f"Error fetching company tickers: {e}")
             return None
-    
+
+    def _resolve_cik(self, ticker, cik=None):
+        """
+        Resolve a zero-padded CIK, preferring an explicitly supplied CIK
+        over ticker-based lookup.
+
+        CIK-only callers (e.g. ``main.py --cik``) have no real ticker, so
+        ticker resolution would fail. When ``cik`` is provided we normalize
+        it directly and skip the network ticker lookup entirely.
+
+        Args:
+            ticker (str): Stock ticker symbol (may be a placeholder).
+            cik (str, optional): Known CIK to use directly.
+
+        Returns:
+            str: Zero-padded CIK, or None if it cannot be resolved.
+        """
+        if cik:
+            return format_cik(cik)
+        return self.cik_matching_ticker(ticker)
+
     def _get_file_name(self, report):
         """
         Extracts the file name from an XML report tag.
@@ -164,7 +184,7 @@ class StatementExtractor:
             and "Statement" in long_name_tag.text
         )
     
-    def get_statement_file_names_in_filing_summary(self, ticker, accession_number):
+    def get_statement_file_names_in_filing_summary(self, ticker, accession_number, cik=None):
         """
         Retrieves file names of financial statements from a filing summary.
 
@@ -176,7 +196,7 @@ class StatementExtractor:
             dict: Dictionary mapping statement types to their file names.
         """
         try:
-            cik = self.cik_matching_ticker(ticker)
+            cik = self._resolve_cik(ticker, cik)
             if not cik:
                 logger.error(f"Could not find CIK for ticker {ticker}")
                 return {}
@@ -218,7 +238,7 @@ class StatementExtractor:
             logger.error(f"Error processing filing summary: {e}")
             return {}
 
-    def extract_statement(self, ticker, accession_number, statement_type):
+    def extract_statement(self, ticker, accession_number, statement_type, cik=None):
         """
         Extract a financial statement for a company filing.
         
@@ -234,7 +254,7 @@ class StatementExtractor:
             logger.info(f"Extracting {statement_type} statement for {ticker}, accession {accession_number}")
             
             # Get the statement soup
-            soup = self.get_statement_soup(ticker, accession_number, statement_type)
+            soup = self.get_statement_soup(ticker, accession_number, statement_type, cik)
             
             if soup:
                 logger.info(f"Successfully found {statement_type} statement in filing {accession_number}")
@@ -263,7 +283,7 @@ class StatementExtractor:
             logger.error(f"Error extracting statement: {e}", exc_info=True)
             return None
     
-    def get_statement_soup(self, ticker, accession_number, statement_type):
+    def get_statement_soup(self, ticker, accession_number, statement_type, cik=None):
         """
         Get BeautifulSoup object for a specific financial statement.
         
@@ -276,7 +296,7 @@ class StatementExtractor:
             BeautifulSoup: Parsed HTML content of the statement or None if not found
         """
         try:
-            cik = self.cik_matching_ticker(ticker)
+            cik = self._resolve_cik(ticker, cik)
             if not cik:
                 logger.error(f"Could not find CIK for ticker {ticker}")
                 return None
@@ -288,7 +308,7 @@ class StatementExtractor:
             base_url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{accn_no_dashes}"
             
             # Get the statement file names from the filing summary
-            statement_file_name_dict = self.get_statement_file_names_in_filing_summary(ticker, accession_number)
+            statement_file_name_dict = self.get_statement_file_names_in_filing_summary(ticker, accession_number, cik)
             
             if not statement_file_name_dict:
                 logger.warning(f"No statement files found in filing {accession_number}")
