@@ -53,14 +53,15 @@ More information: https://www.sec.gov/developer
 
 ### Requirements
 
-- Python 3.10+
+- Python 3.11+
 - `pip`
 
-> The hash-verified clean-room install and CI path are currently
-> validated on Windows / CPython 3.11 (`requirements.lock` is
-> Windows/cp311-specific). The source itself is 3.10+; a Linux or
-> lower-interpreter lock is deferred until a fresh dependency resolve
-> is safe under the active supply-chain incident policy.
+> The pinned dependency set (`pandas`, `numpy`) requires Python 3.11+,
+> so 3.11 is the hard floor. The hash-verified clean-room install and
+> CI path are validated on Windows / CPython 3.11 (`requirements.lock`
+> is Windows/cp311-specific); a Linux lock is deferred until a fresh
+> dependency resolve is safe under the active supply-chain incident
+> policy.
 
 ### Install from GitHub
 

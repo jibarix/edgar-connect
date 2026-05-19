@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-05-19
+
+### Added
+
+- **Hardened CI workflow (`.github/workflows/ci.yml`).** Triggers on
+  `push`/`pull_request` to `main` only; no `pull_request_target`;
+  least-privilege token (`permissions: contents: read`); third-party
+  actions pinned to full commit SHAs. Install is hash-verified from the
+  Windows/cp311 `requirements.lock` plus exact, supply-chain-audited dev
+  pins (`--no-deps`) and an editable `--no-build-isolation --no-deps`
+  install — no fresh dependency resolve, consistent with the active
+  Mini Shai-Hulud policy. Runs `pytest` and an offline MCP server import
+  boot; no live SEC calls (`EDGAR_IDENTITY` intentionally unset).
+  Pinned to `windows-latest` / Python 3.11 to match the committed lock;
+  a Linux runner would force an incident-blocked cross-platform resolve.
+
+### Changed
+
+- **`requires-python` corrected to `>=3.11`.** The pinned dependency
+  set (`pandas==3.0.2`, `numpy==2.4.4`) requires Python 3.11+, so the
+  package cannot install on a lower interpreter. Published metadata now
+  matches that reality; README updated to `Python 3.11+` and the prior
+  "source-compatible vs lock-verified" ambiguity removed. Lowering the
+  floor again would require a separately generated and audited
+  3.10-compatible dependency set with CI validation first.
+
 ## [0.1.0] - 2026-05-19
 
 ### Fixed
