@@ -79,7 +79,7 @@ The engine returns the **most recent N periods of that type that exist in
 the filings**, newest first. "Date" here just means "the latest N
 filings." There is no *as-of an arbitrary date* logic in the core path.
 
-### B) Comps workbook generator — the on-demand `--as-of` tool (archive)
+### B) Comps workbook generator — the shipped `--as-of` tool
 
 This is the only place a real as-of date is honored. Given
 `--as-of 2025-03-31` it decides:
@@ -262,9 +262,11 @@ row it actually reported, **per period**:
 
 | Script | Purpose |
 |---|---|
-| `scripts/smoke_test_metrics.py` | Live AAPL smoke test of the parser + metric registry; prints a compact multi-period table of hand-checked metrics. Requires `EDGAR_IDENTITY`. The fastest way to verify the mapping end to end. |
+| `scripts/smoke_test_metrics.py` | Live AAPL smoke test of the parser + metric registry; prints a compact multi-period table of hand-checked metrics. Requires `EDGAR_IDENTITY` or `SEC_EDGAR_USER_AGENT`. The fastest way to verify the mapping end to end. |
 | `scripts/gen_lockfile.py` | Regenerates `requirements.lock` (exact versions + sha256) from a `pip --dry-run --report` output. Not part of the mapping itself; listed for completeness. |
 | `scripts/update_sec_tag_mapping.py` | Maintenance tool for the Layer-1 backing data `data/sec_tag_mapping.json`. Forward-only integrity baseline via a sha256 manifest at `data/sec_tag_mapping.source.json`; additive merge of new us-gaap tags from a fresh FSDS quarter. New tags are auto-classified only when per-statement rules fire confidently (high precision, low recall); ambiguous tags are held in a review report for hand-adjudication. Existing classifications are preserved. |
+| `scripts/update_company_index.py` | Maintenance tool for the local company-classification snapshot `data/company_index.json`. Forward-only integrity baseline via a sha256 manifest at `data/company_index.source.json`; snapshot rebuild from one or more FSDS quarters. |
+| `scripts/build_comps.py` | Shipped comparables workbook generator. Filters `data/company_index.json`, pulls live Company Facts, and writes the `Universe`, `Metrics`, `Screening_24col`, `Screening_36col`, per-peer drilldown, and `About` sheets. This is the shipped workflow that honors `--as-of`. |
 
 ### Scripts that live in the archive tree (not shipped here)
 

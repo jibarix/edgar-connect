@@ -19,7 +19,8 @@ subscription; the live data source is the SEC.
 > ```
 >
 > Without it the SEC will throttle requests. Do not hardcode, borrow, or commit
-> someone else's identity.
+> someone else's identity. `SEC_EDGAR_USER_AGENT` is also accepted as an
+> alias for compatibility with other SEC tooling.
 
 ## What it does
 
@@ -308,16 +309,16 @@ do not tag `OperatingIncomeLoss` cleanly.
 
 ## Scripts
 
-The current `scripts/` directory is small and focused on validation and
-maintenance:
+The current `scripts/` directory is focused on validation, maintenance,
+and workbook/reporting workflows:
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/smoke_test_metrics.py` | Live AAPL smoke test for the parser + metric registry. Prints a compact multi-period table of hand-checked metrics. Requires `EDGAR_IDENTITY`. |
+| `scripts/smoke_test_metrics.py` | Live AAPL smoke test for the parser + metric registry. Prints a compact multi-period table of hand-checked metrics. Requires `EDGAR_IDENTITY` or `SEC_EDGAR_USER_AGENT`. |
 | `scripts/gen_lockfile.py` | Regenerates `requirements.lock` from `pip --dry-run --report ...` output using exact versions and `sha256` hashes. |
 | `scripts/update_sec_tag_mapping.py` | Maintenance tool for `data/sec_tag_mapping.json`. Forward-only integrity check via a sha256 manifest, plus an additive merge of new us-gaap tags from a fresh SEC Financial Statement Data Set quarter. |
 | `scripts/update_company_index.py` | Maintenance tool for `data/company_index.json`. Forward-only integrity check via a sha256 manifest, plus a snapshot rebuild of the company classification index from one or more fresh SEC Financial Statement Data Set quarters. |
-| `scripts/build_comps.py` | Build a styled multi-peer comparables workbook from `data/company_index.json` (no anchor company required). Filters by SIC plus optional name / subindustry / country, pulls Company Facts per peer, and writes one Excel with a `Universe` sheet (classification fields), a `Metrics` matrix (peers × metric × relative fiscal period), CapIQ-mirror `Screening_24col` / `Screening_36col` snapshot sheets (LTM, point-in-time at `--as-of`), per-peer drilldown sheets (BS / IS / CF stacked), and an `About` methodology sheet. Styled header band, freeze panes, auto-filter, accounting number formats. Optional `--extensions` merges captive-finance extension XBRL; 5Y monthly β + R² vs ^GSPC is on by default (fail-soft on Yahoo errors / `<24` months of history) and disabled with `--no-beta`. Requires `EDGAR_IDENTITY` for live runs; `--dry-run` previews the peer set offline; `--no-capiq-layout` skips the Screening / submissions / quarterly path for a faster build. |
+| `scripts/build_comps.py` | Build a styled multi-peer comparables workbook from `data/company_index.json` (no anchor company required). Filters by SIC plus optional name / subindustry / country, pulls Company Facts per peer, and writes one Excel with a `Universe` sheet (classification fields), a `Metrics` matrix (peers × metric × relative fiscal period), CapIQ-mirror `Screening_24col` / `Screening_36col` snapshot sheets (LTM, point-in-time at `--as-of`), per-peer drilldown sheets (BS / IS / CF stacked), and an `About` methodology sheet. Styled header band, freeze panes, auto-filter, accounting number formats. Optional `--extensions` merges captive-finance extension XBRL; 5Y monthly β + R² vs ^GSPC is on by default (fail-soft on Yahoo errors / `<24` months of history) and disabled with `--no-beta`. Requires `EDGAR_IDENTITY` or `SEC_EDGAR_USER_AGENT` for live runs; `--dry-run` previews the peer set offline; `--no-capiq-layout` skips the Screening / submissions / quarterly path for a faster build. |
 
 Lockfile regeneration flow:
 
@@ -355,7 +356,7 @@ python scripts/build_comps.py --sic 5500 \
     --dry-run
 
 # Live build (writes output/comps_<label>_<period>_<YYYYMMDD>.xlsx).
-# Requires EDGAR_IDENTITY in the environment.
+# Requires EDGAR_IDENTITY or SEC_EDGAR_USER_AGENT in the environment.
 python scripts/build_comps.py --sic 5500 \
     --exclude-name casey murphy copart openlane camping lazydays \
     --num-periods 5

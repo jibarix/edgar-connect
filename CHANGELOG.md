@@ -77,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   own `_MIN_OBS=24` cutoff blanks names with <2 years of history);
   `--no-beta` disables the computation; `--no-capiq-layout` skips
   the Screening / submissions / quarterly path for a faster build. Live runs require
-  `EDGAR_IDENTITY`; `--dry-run` previews the peer set offline.
+  `EDGAR_IDENTITY` or `SEC_EDGAR_USER_AGENT`; `--dry-run` previews the peer set offline.
   openpyxl is the workbook writer (already in deps); no new
   dependencies. Verified end-to-end against an 11-peer auto-dealer
   universe (SIC 5500) — 11/11 peers pulled, Screening_36col
