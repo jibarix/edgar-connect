@@ -25,7 +25,18 @@ dependencies = [
     "lxml==6.1.0",           # 2026-04-17
     "jsonschema==4.26.0",    # 2024-12-19
     # --- explicit transitive pins (override pip auto-resolution) ---
-    "idna==3.11",            # 2025-10-12  (httpx transitive; 3.14/3.15 fell inside disclosure window)
+    # idna: held at 3.11 (httpx transitive). GHSA-65pc-fj4g-8rjx /
+    # CVE-2026-45409 (idna.encode bypass of CVE-2024-3651) applies to
+    # <3.15, but the patched 3.15 was uploaded 2026-05-12 — one day
+    # after the Mini Shai-Hulud disclosure wave, and 3.12 / 3.13 / 3.14
+    # / 3.15 all shipped in a 4-week cluster around the incident
+    # window, well outside idna's normal release cadence. The
+    # vulnerable code path (idna.encode on attacker-controlled
+    # hostnames) is not reachable from this codebase — only hardcoded
+    # SEC and Yahoo Finance endpoints are contacted. Dependabot alert
+    # dismissed as tolerable_risk; revisit when a post-window release
+    # with normal-cadence margin is available.
+    "idna==3.11",            # 2025-10-12
     "numpy==2.4.4",          # 2026-03-29  (pandas transitive; 2.4.6 dropped 2026-05-18, in-window)
 ]
 
