@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-05-20
+
+Bug fixes, project hardening, and maintenance/security updates. No
+public API changes; no behavior changes outside the specific fixes
+called out below.
+
 ### Security
 
 - **Bumped dev pin `pytest==8.4.2` → `pytest==9.0.3`** to clear
@@ -159,6 +165,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (dry-run by default). Live download path requires `EDGAR_IDENTITY`;
   `--source-zip` allows offline / CI runs. stdlib-only — no new
   dependencies. README and MAPPING.md updated with the new flow.
+
+- **Repository policy files (`SECURITY.md`, `CONTRIBUTING.md`).**
+  `SECURITY.md` points security reports at GitHub Private Vulnerability
+  Reporting (no public issues/PRs), documents that only the latest
+  commit on `main` is supported, and codifies the supply-chain posture
+  (pinned versions, hash-locked `requirements.lock`, no ad-hoc
+  `pipx run` / `npx`). `CONTRIBUTING.md` records the personal-public-repo
+  contribution model: no direct collaborator access, all external
+  contributions via fork PRs against `jibarix/edgar-connect:main`, with
+  the same CI gate, one approving review, conversation resolution, and
+  blocked force-push / branch deletion expectations enforced by branch
+  protection. Both files are referenced from the README and from each
+  other.
 
 ### Fixed
 
