@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **Bumped dev pin `pytest==8.4.2` → `pytest==9.0.3`** to clear
+  GHSA-6w46-j5rx-g56g / CVE-2025-71176 (vulnerable `tmpdir` handling
+  in pytest, medium / CVSS 6.8). Dev-only dependency, not in
+  `requirements.lock`. `pytest 9.0.3` was uploaded 2026-04-07 — 22
+  days before the 2026-04-29 phase-1 staging wave, comfortably past
+  the project's ≥2-week pre-staging margin. Updated both
+  `pyproject.toml` and the hand-pinned `--no-deps` step in
+  `.github/workflows/ci.yml`. Verified locally: 31/31 offline tests
+  pass and the MCP offline import boot succeeds on 9.0.3.
+
+  The 8 → 9 major bump touches deprecated pytest 8.x APIs the suite
+  doesn't use; no test code changes required. Transitive dep floors
+  shifted slightly (`iniconfig>=1.0.1`, `packaging>=22`) but our
+  existing pins (`iniconfig==2.3.0`, `packaging==25.0`) already
+  satisfy them.
+
+  `idna` (GHSA-65pc-fj4g-8rjx / CVE-2026-45409) was reviewed in the
+  same pass and intentionally NOT bumped: the patched `idna 3.15`
+  was uploaded 2026-05-12, one day after the main Mini Shai-Hulud
+  disclosure wave, and the prior 3.12 / 3.13 / 3.14 / 3.15 releases
+  shipped in a four-week cluster around the incident — well outside
+  this package's normal release rhythm. The actual attack surface
+  (`idna.encode()` on attacker-controlled hostnames) isn't reachable
+  here: `edgar-connect` only contacts hardcoded SEC and Yahoo
+  Finance endpoints. The Dependabot alert was dismissed with
+  rationale; `idna` stays pinned at `3.11` until a clean
+  post-window release with normal release-cadence margin is
+  available.
+
 ### Fixed
 
 - **`scripts/build_comps.py`: point-in-time screening sheets no longer
