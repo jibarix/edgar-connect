@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "edgar-link"
-version = "0.1.2"
+version = "0.2.0"
 description = "Analyst-grade SEC EDGAR financials: XBRL pull plus a vendor-comparable normalized metric/comps/beta engine, with an MCP server"
 # Floor matches the pinned dependency reality: pandas==3.0.2 and
 # numpy==2.4.4 both require >=3.11, so the package cannot install on a

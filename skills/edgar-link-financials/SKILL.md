@@ -12,7 +12,7 @@ description: >-
   XBRL concept. Do NOT use for live stock quotes, options, or news.
 metadata:
   mcp-server: edgar
-  version: 0.1.2
+  version: 0.2.0
 ---
 
 # edgar-link financials
